@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="/static/images/favicon.ico">
+  <link rel="stylesheet" href="/static/css/index.css">
+  <title>iKay</title>
+  <script src="/static/js/includeHTML.js"></script>  
+</head>
+<body>
+  <main>
+    <aside>
+      <header include-html="/static/html/header.html"></header> 
+      <hr/>
+      <nav include-html="/static/html/nav.html"></nav>
+      <hr/>
+      <footer include-html="/static/html/footer.html"></footer>
+    </aside>
+    <article include-html="/static/html/article.html"></article>
+  </main>
+</body>
+<script>
+includeHTML( () => {
+  //var a = document.getElementsByTagName('a');
+  document.body.addEventListener('click', (e)=> {
+
+    var file = e.target.getAttribute('load');
+    console.log(file);
+    if (file) {
+      var content = document.getElementById('content');
+      console.log(content);
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+        if (this.status == 200) {content.innerHTML = this.responseText;}
+        if (this.status == 404) {content.innerHTML = 'Page not found.';}
+        /*remove the attribute, and call this function once more:*/
+        // elmnt.removeAttribute('include-html');
+        }
+      }      
+      xhttp.open('GET', file, true);
+      xhttp.send();
+    }
+    
+  })
+
+
+  
+
+  
+  
+  
+  /*
+  document.getElementById('clickMe').onclick = function (e) {
+    alert('I\'m clicked!');
+    console.log(e)
+  };
+  */
+});
+
+</script>
+</html>
