@@ -8,6 +8,16 @@
   <link rel="stylesheet" href="/static/css/index.css">
   <title>iKay</title>
   <script src="/static/js/includeHTML.js"></script>  
+  <script src="/static/js/includeRouter.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUzC5jihKAz0khZWN14LYa8Ojfe3ZUn68"></script>
+  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-1475493424828839",
+      enable_page_level_ads: true
+    });
+  </script>
 </head>
 <body>
   <main>
@@ -23,41 +33,9 @@
 </body>
 <script>
 includeHTML( () => {
-  //var a = document.getElementsByTagName('a');
-  document.body.addEventListener('click', (e)=> {
-
-    var file = e.target.getAttribute('load');
-    console.log(file);
-    if (file) {
-      var content = document.getElementById('content');
-      console.log(content);
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
-        if (this.status == 200) {content.innerHTML = this.responseText;}
-        if (this.status == 404) {content.innerHTML = 'Page not found.';}
-        /*remove the attribute, and call this function once more:*/
-        // elmnt.removeAttribute('include-html');
-        }
-      }      
-      xhttp.open('GET', file, true);
-      xhttp.send();
-    }
-    
-  })
-
-
-  
-
-  
-  
-  
-  /*
-  document.getElementById('clickMe').onclick = function (e) {
-    alert('I\'m clicked!');
-    console.log(e)
-  };
-  */
+  includeRouter( e => {
+    // console.log(e.target.getAttribute('href'))
+  });
 });
 
 </script>

@@ -1,4 +1,66 @@
-<p>
-    hello convenience stores
+<div id="convenience-stores">
+  <div id="map"></div>
+</div>
 
-</p>
+<script>
+
+function setMarkers(map, locations) {
+  var markers, marker;
+  markers = locations.map( el => {
+    return marker = new google.maps.Marker({
+      position: { lat: el.latitude, lng: el.longitude },
+      label: el.name,
+      title: el.address,
+      // map: map
+    });
+  });
+  return markers;
+}
+
+function getLocationsFromApi(cb) {
+  var xhr, url;
+  xhr = new XMLHttpRequest();
+  url = 'http://localhost:8881/api/stores/convenience-stores';
+  xhr.open('GET', url, true);
+  xhr.responseType = 'json';
+  xhr.onreadystatechange = function() {
+    if (this.readyState == 4) {
+      if (this.status == 200) {
+        cb(this.response);
+      }
+      if (this.status == 404) {
+        console.log('404 data not found.');
+      }
+    }
+  } 
+  xhr.send();     
+}
+
+function initMap() {
+  var map;
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 11,
+    center: {lat: 37.55, lng: 126.95},
+    streetViewControl: false,
+    mapTypeControl: false,
+    scaleControl: false,
+    rotateControl: false,
+  });
+  return map;
+}
+
+var map = initMap();
+getLocationsFromApi((locations)=> {
+  var markers = setMarkers(map, locations);
+  var markerCluster = new MarkerClusterer(map, markers, {
+    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+    gridSize: 100,
+  });
+});
+</script>
+
+<style>
+#convenience-stores, #map{
+  height: 100%;
+}
+</style>
