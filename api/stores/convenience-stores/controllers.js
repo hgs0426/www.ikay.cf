@@ -7,7 +7,7 @@ const serveConvenienceStores = async (req, res) => {
     const options = {
     hostname: config.hostname,
     port: config.port,
-    path: config.path,
+    path: '/api/stores/convenience-stores',
     method: 'GET'
   };
   // console.log(options);  
