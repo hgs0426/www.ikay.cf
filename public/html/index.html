@@ -11,7 +11,7 @@
   <script src="/static/js/includeRouter.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUzC5jihKAz0khZWN14LYa8Ojfe3ZUn68"></script>
   <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
     (adsbygoogle = window.adsbygoogle || []).push({
       google_ad_client: "ca-pub-1475493424828839",
@@ -32,8 +32,8 @@
   </main>
 </body>
 <script>
-includeHTML( () => {
-  includeRouter( e => {
+includeHTML( function () {
+  includeRouter( function (e) {
     // console.log(e.target.getAttribute('href'))
   });
 });

@@ -1,6 +1,6 @@
 function includeRouter(cb) {
   var content, file, xhttp, i;
-  document.body.addEventListener('click', (e)=> {
+  document.body.addEventListener('click', function(e) {
     file = e.target.getAttribute('route-link');
     if (file) {
       content = document.getElementById('content');

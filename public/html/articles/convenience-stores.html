@@ -6,7 +6,7 @@
 
 function setMarkers(map, locations) {
   var markers, marker;
-  markers = locations.map( el => {
+  markers = locations.map( function(el) {
     return marker = new google.maps.Marker({
       position: { lat: el.latitude, lng: el.longitude },
       label: el.name,
@@ -20,7 +20,7 @@ function setMarkers(map, locations) {
 function getLocationsFromApi(cb) {
   var xhr, url;
   xhr = new XMLHttpRequest();
-  url = 'http://localhost:8881/api/stores/convenience-stores';
+  url = '/api/stores/convenience-stores';
   xhr.open('GET', url, true);
   xhr.responseType = 'json';
   xhr.onreadystatechange = function() {
@@ -50,8 +50,8 @@ function initMap() {
 }
 
 var map = initMap();
-getLocationsFromApi((locations)=> {
-  var markers = setMarkers(map, locations);
+getLocationsFromApi((data)=> {
+  var markers = setMarkers(map, data.body);
   var markerCluster = new MarkerClusterer(map, markers, {
     imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
     gridSize: 100,
