@@ -24,9 +24,20 @@ const getJwt = (body) => {
   });
 }
 
+const requestingPath = (query) => {
+  let path, prop;
+  path = '/api/stores/convenience-stores?';
+  
+  for (prop in query) {
+    path += `${prop}=${query[prop]}&`; 
+  }
+  return path;
+}
+
 const serveConvenienceStores = async (req, res) => {
 
   const results = await getJwt(config.userInfo);
+
   if ( 200 !== results.statusCode ) {
     res.status(results.statusCode).json(results);
   }
@@ -34,7 +45,7 @@ const serveConvenienceStores = async (req, res) => {
   const options = {
     hostname: config.hostname,
     port: config.port,
-    path: '/api/stores/convenience-stores',
+    path: requestingPath(req.query),
     method: 'GET',
     headers: {
       'Accept': 'application/json',
