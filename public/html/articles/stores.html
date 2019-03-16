@@ -1,146 +1,233 @@
 <div id="convenience-stores">
   <div id="map"></div>
   <div id="search-box">
-    <input id="name" placeholder="편의점 이름 예) CU, GS">
-    <input id="region" placeholder="지역 이름 예) 부산광역시">
-    <button id="btn_search">검색</button>
+    <div class="selected-box">
+      <h4>상가</h4>
+      <p id="selected-store"></p>
+      <h4>지역</h4>
+      <p id="selected-cities"></p>
+      <button id="btn-selected-cities">초기화</button>
+    </div>
+    <div class="select-box">
+      <select id="store-type-choice">
+        <option value="" disabled selected hidden>상가</option>
+      </select>
+      <select id="city-code-choice">
+        <option value="" disabled selected hidden>지역</option>
+      </select>
+    <button id="btn-search">검색</button>
+    </div>
   </div>
 </div>
 
 <script>
-  var map, markers, markerCluster;
+var map, markers, markerCluster, selectedStore, selectedCities;
 
-  markers = [];
-  map = initMap();
+markers = [];
+map = initMap();
+selectedStore = {};
+selectedCities = [];
 
-  document.getElementById('btn_search').onclick = function () {
-    var name, region, conditions;
-    // deleteMarkers(markers);
-    // markerCluster = new MarkerClusterer(map);
-    conditions = { name: getNameCondition(), region: getRegionCondition() };
-    getLocationsFromApi(conditions, (data) => {
-      deleteMarkers();
-      markers = setMarkers(data.body);
+getCodes('store', 'all', function(response) {
+  // sessionStorage.setItem('storesCodes',JSON.stringify(response.resBody));
+  var select, storeCodes, sorted, i, option;
+  storeCodes = response.resBody;
+  sorted = sortCodes(storeCodes, "name", "asc");
+  select = document.getElementById('store-type-choice');
+  for (i=0; i<sorted.length; i+=1) {
+    option = document.createElement('option');
+    option.innerHTML = sorted[i].name;
+    option.value = sorted[i].code;
+    // console.log(option)
+    select.appendChild(option);
+  }
+});
 
-      markerCluster = new MarkerClusterer(map, markers, {
-        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-        gridSize: 100,
-      });
+getCodes('city','all', function(response) {
+  var select, cityCodes, sorted, i, option;
+  cityCodes = response.resBody;
+  // console.log(cityCodes);
+  sorted = sortCodes(cityCodes, "code", "asc");
+  select = document.getElementById('city-code-choice');
+  for (i=0; i<sorted.length; i+=1) {
+    option = document.createElement('option');
+    option.innerHTML = sorted[i].name;
+    option.value = sorted[i].code;
+    select.appendChild(option);
+  }
+});
+
+document.getElementById('store-type-choice').onchange = function(e) {
+  var sel, opt, el;
+  sel = document.getElementById('store-type-choice');
+  opt = sel.options[sel.selectedIndex];
+  el = { code: opt.value, name: opt.text };
+  selectedStore = el;
+  console.log(selectedStore);
+  showSelectedStore();
+}
+
+document.getElementById('city-code-choice').onchange = function(e) {
+  var sel, opt, el;
+  sel = document.getElementById('city-code-choice');
+  opt = sel.options[sel.selectedIndex];
+  el = { code: opt.value, name: opt.text };
+  addElementIntoSelectedCities(el);
+  console.log(selectedCities);
+  showSelectedCities();
+}
+
+document.getElementById('btn-search').onclick = function () {
+  var name, region, conditions;
+  // markerCluster = new MarkerClusterer(map);
+  // conditions = { name: getNameCondition(), region: getRegionCondition() };
+  getLocationsFromApi(conditions, (data) => {
+    deleteMarkers();
+    markers = setMarkers(data.body);
+
+    markerCluster = new MarkerClusterer(map, markers, {
+      imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+      gridSize: 100,
     });
-  }
-
-  function clearMarkers() {
-    markers = markers.map(function (marker) {
-      return marker.setMap(null);
-    });
-  }
-
-  function deleteMarkers() {
-    clearMarkers();
-    markers = [];
-    if (markerCluster) {
-      markerCluster.clearMarkers();
-    }
-
-  }
-
-  function setMarkers(locations) {
-    var marker;
-    markers = locations.map(function (el) {
-      return marker = new google.maps.Marker({
-        position: { lat: el.latitude, lng: el.longitude },
-        label: el.name,
-        title: el.address,
-        // map: map
-      });
-    });
-    return markers;
-  }
-
-  function getLocationsFromApi(conditions, cb) {
-    var xhr, url;
-    xhr = new XMLHttpRequest();
-    url = requestUrl(conditions);
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.onreadystatechange = function () {
-      if (this.readyState == 4) {
-        if (this.status == 200) {
-          cb(this.response);
-        }
-        if (this.status == 404) {
-          console.log('404 data not found.');
-        }
-      }
-    }
-    xhr.send();
-  }
-
-  function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 11,
-      center: { lat: 37.55, lng: 126.95 },
-      streetViewControl: false,
-      mapTypeControl: false,
-      scaleControl: false,
-      rotateControl: false,
-    });
-    return map;
-  }
-
-
-
-  function requestUrl(conditions) {
-    var url;
-    url = '/api/stores/convenience-stores?'
-      + 'name=' + escape(encodeURIComponent(conditions.name))
-      + '&region=' + escape(encodeURIComponent(conditions.region));
-    return url;
-  }
-  function getNameCondition() {
-    var value;
-    value = document.getElementById('name').value;
-    return value;
-  }
-
-  function getRegionCondition() {
-    var value;
-    value = document.getElementById('region').value;
-    return value;
-  }
-  getCodes('store', 'all', function(data) {
-
-    console.log('2',data);
   });
+}
 
-  function getCodes(type, name, cb) {
-    var xhr, url;
-    xhr = new XMLHttpRequest();
-    url = getCodesUrl(type, name)
-    xhr.onreadystatechange = function() {
-      if ( 4 == this.readyState ) {
-        if ( 200 == this.status ) {
-          console.log('1', this.response);
-          cb(this.response)
-          
-        }
-        if ( 404 == this.status ) {
-          console.log('error on /api/stores/codes/store/names');
-        }
+document.getElementById('btn-selected-cities').onclick = function() {
+  document.getElementById('selected-store').innerHTML = '';
+  document.getElementById('selected-cities').innerHTML = '';
+  selectedStore = {};
+  selectedCities = [];
+};
+
+function getLocationsFromApi(conditions, cb) {
+  var xhr, url;
+  xhr = new XMLHttpRequest();
+  url = requestUrl(conditions);
+  xhr.open('GET', url, true);
+  xhr.responseType = 'json';
+  xhr.onreadystatechange = function () {
+    if (this.readyState == 4) {
+      if (this.status == 200) {
+        cb(this.response);
+      }
+      if (this.status == 404) {
+        console.log('404 data not found.');
       }
     }
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.send();
+  }
+  xhr.send();
+}
+
+function clearMarkers() {
+  markers = markers.map(function (marker) {
+    return marker.setMap(null);
+  });
+}
+
+function deleteMarkers() {
+  clearMarkers();
+  markers = [];
+  if (markerCluster) {
+    markerCluster.clearMarkers();
   }
 
-  function getCodesUrl(type, name) {
-    var url;
-    url = '/api/stores/codes/'+ type +'/names/' + name;
-    return url;
+}
+
+function setMarkers(locations) {
+  var marker;
+  markers = locations.map(function (el) {
+    return marker = new google.maps.Marker({
+      position: { lat: el.latitude, lng: el.longitude },
+      label: el.name,
+      title: el.address,
+      // map: map
+    });
+  });
+  return markers;
+}
+
+
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 11,
+    center: { lat: 37.55, lng: 126.95 },
+    streetViewControl: false,
+    mapTypeControl: false,
+    scaleControl: false,
+    rotateControl: false,
+  });
+  return map;
+}
+
+function showSelectedStore() {
+  document.getElementById('selected-store').innerHTML = '';
+  document.getElementById('selected-store').innerHTML = selectedStore.name;
+}
+
+function addElementIntoSelectedCities(el) {
+  var found;
+  
+  found = selectedCities.find(function(currentEl) {
+    return currentEl.code == el.code;
+  });
+  found? 'do_nothing' : selectedCities.push(el);
+}
+
+function showSelectedCities() {
+  document.getElementById('selected-cities').innerHTML = '';
+  for (i in selectedCities) {
+    if ( 0 < i) {
+      document.getElementById('selected-cities').innerHTML += ',';
+    }
+    document.getElementById('selected-cities').innerHTML += selectedCities[i].name;  
   }
+}
 
+function requestUrl(conditions) {
+  var url;
+  url = '/api/stores/convenience-stores?'
+    + 'name=' + escape(encodeURIComponent(conditions.name))
+    + '&region=' + escape(encodeURIComponent(conditions.region));
+  return url;
+}
 
+function sortCodes(list, property, orderBy="asc") {
+  var sorted;
+  sorted = list.sort(function(a, b) {
+    if (orderBy="asc") {
+      return a[property] > b[property] ? 1: -1;
+    } else {
+      return a[property] > b[property] ? -1: 1;
+    }
+  });
+  return sorted;
+}
+
+function getCodes(type, name, cb) {
+  var xhr, url;
+  xhr = new XMLHttpRequest();
+  url = getCodesUrl(type, name)
+  xhr.onreadystatechange = function() {
+    if ( 4 == this.readyState ) {
+      if ( 200 == this.status ) {
+        cb(this.response)
+      }
+      if ( 404 == this.status ) {
+        console.log('error on /api/stores/codes/store/names');
+      }
+    }
+  }
+  xhr.open('GET', url, true);
+  xhr.responseType = 'json';
+  xhr.send();
+}
+
+function getCodesUrl(type, name) {
+  var url;
+  url = '/api/stores/codes/'+ type +'/names/' + name;
+  return url;
+}
 </script>
 
 <style>
@@ -152,10 +239,15 @@
   #search-box {
     position: absolute;
     z-index: 10;
-    width: 240px;
+    width: 500px;
     /* background-color: black; */
-    height: 60px;
+    height: 200px;
     top: 60px;
     left: 60px;
+  }
+
+  .selected-box {
+    height: 200px;
+    /* background-color: aqua; */
   }
 </style>

@@ -12,7 +12,7 @@ class Requester {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
           data += chunk;
-          console.log(data);
+          // console.log(data);
         });
         res.on('end', ()=> {
           const result = {
