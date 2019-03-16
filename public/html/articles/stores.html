@@ -1,0 +1,161 @@
+<div id="convenience-stores">
+  <div id="map"></div>
+  <div id="search-box">
+    <input id="name" placeholder="편의점 이름 예) CU, GS">
+    <input id="region" placeholder="지역 이름 예) 부산광역시">
+    <button id="btn_search">검색</button>
+  </div>
+</div>
+
+<script>
+  var map, markers, markerCluster;
+
+  markers = [];
+  map = initMap();
+
+  document.getElementById('btn_search').onclick = function () {
+    var name, region, conditions;
+    // deleteMarkers(markers);
+    // markerCluster = new MarkerClusterer(map);
+    conditions = { name: getNameCondition(), region: getRegionCondition() };
+    getLocationsFromApi(conditions, (data) => {
+      deleteMarkers();
+      markers = setMarkers(data.body);
+
+      markerCluster = new MarkerClusterer(map, markers, {
+        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+        gridSize: 100,
+      });
+    });
+  }
+
+  function clearMarkers() {
+    markers = markers.map(function (marker) {
+      return marker.setMap(null);
+    });
+  }
+
+  function deleteMarkers() {
+    clearMarkers();
+    markers = [];
+    if (markerCluster) {
+      markerCluster.clearMarkers();
+    }
+
+  }
+
+  function setMarkers(locations) {
+    var marker;
+    markers = locations.map(function (el) {
+      return marker = new google.maps.Marker({
+        position: { lat: el.latitude, lng: el.longitude },
+        label: el.name,
+        title: el.address,
+        // map: map
+      });
+    });
+    return markers;
+  }
+
+  function getLocationsFromApi(conditions, cb) {
+    var xhr, url;
+    xhr = new XMLHttpRequest();
+    url = requestUrl(conditions);
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4) {
+        if (this.status == 200) {
+          cb(this.response);
+        }
+        if (this.status == 404) {
+          console.log('404 data not found.');
+        }
+      }
+    }
+    xhr.send();
+  }
+
+  function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 11,
+      center: { lat: 37.55, lng: 126.95 },
+      streetViewControl: false,
+      mapTypeControl: false,
+      scaleControl: false,
+      rotateControl: false,
+    });
+    return map;
+  }
+
+
+
+  function requestUrl(conditions) {
+    var url;
+    url = '/api/stores/convenience-stores?'
+      + 'name=' + escape(encodeURIComponent(conditions.name))
+      + '&region=' + escape(encodeURIComponent(conditions.region));
+    return url;
+  }
+  function getNameCondition() {
+    var value;
+    value = document.getElementById('name').value;
+    return value;
+  }
+
+  function getRegionCondition() {
+    var value;
+    value = document.getElementById('region').value;
+    return value;
+  }
+  getCodes('store', 'all', function(data) {
+
+    console.log('2',data);
+  });
+
+  function getCodes(type, name, cb) {
+    var xhr, url;
+    xhr = new XMLHttpRequest();
+    url = getCodesUrl(type, name)
+    xhr.onreadystatechange = function() {
+      if ( 4 == this.readyState ) {
+        if ( 200 == this.status ) {
+          console.log('1', this.response);
+          cb(this.response)
+          
+        }
+        if ( 404 == this.status ) {
+          console.log('error on /api/stores/codes/store/names');
+        }
+      }
+    }
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.send();
+  }
+
+  function getCodesUrl(type, name) {
+    var url;
+    url = '/api/stores/codes/'+ type +'/names/' + name;
+    return url;
+  }
+
+
+</script>
+
+<style>
+  #convenience-stores,
+  #map {
+    height: 100%;
+  }
+
+  #search-box {
+    position: absolute;
+    z-index: 10;
+    width: 240px;
+    /* background-color: black; */
+    height: 60px;
+    top: 60px;
+    left: 60px;
+  }
+</style>
