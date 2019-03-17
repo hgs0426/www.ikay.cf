@@ -92,7 +92,7 @@ getCodes('city','all', function(response) {
 
 (function onClickBtnSearch() {
   document.getElementById('btn-search').onclick = function () {
-    var name, region, conditions;
+    var name, region, conditions, start, end;
     // markerCluster = new MarkerClusterer(map);
     // conditions = { name: getNameCondition(), region: getRegionCondition() };
     if (!selectedStore.code) {
@@ -100,6 +100,7 @@ getCodes('city','all', function(response) {
     }
     document.getElementById('loading').style.visibility = 'visible';
     getLocationsFromApi((data) => {
+      start = now()
       deleteMarkers();
       // console.log(data)
       markers = setMarkers(data.resBody);
@@ -108,6 +109,8 @@ getCodes('city','all', function(response) {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
         gridSize: 100,
       });
+      end = now();
+      console.log('2. 화면 렌더링 시간:',end-start,'(ms)');
     });
   }
 })();
@@ -141,14 +144,17 @@ getCodes('city','all', function(response) {
 })();
 
 function getLocationsFromApi(cb) {
-  var xhr, url;
+  var xhr, url, start, end;
   xhr = new XMLHttpRequest();
   url = requestUrl();
   xhr.open('GET', url, true);
   xhr.responseType = 'json';
+  start = now();
   xhr.onreadystatechange = function () {
     if ( 4 == this.readyState) {
       document.getElementById('loading').style.visibility = 'hidden';
+      end = now();
+      console.log('1. 데이터 로딩 시간:',end-start,'(ms)')
       if (200 == this.status) {
         cb(this.response);
       }
@@ -287,6 +293,11 @@ function getCodesUrl(type, name) {
   url = '/api/stores/codes/'+ type +'/names/' + name;
   return url;
 }
+
+function now() {
+  return new Date();
+}
+
 </script>
 
 <style>
