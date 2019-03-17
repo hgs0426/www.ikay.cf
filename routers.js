@@ -6,12 +6,13 @@ router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
 const storesCodes = require(path.join(__dirname, 'api', 'stores', 'codes', 'routers'));
+const stores = require(path.join(__dirname, 'api', 'stores', 'routers'));
 
 router.get('/', (req, res) => {
   // analyze(req.headers); // 사용성 분석 작업 필요
   res.sendFile(path.join(__dirname, 'public','html','index.html'));
 });
 
-router.use('/', storesCodes);
+router.use('/', [ storesCodes, stores]);
 
 module.exports = router;
