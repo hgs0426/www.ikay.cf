@@ -1,24 +1,29 @@
 <div id="convenience-stores">
-  <div id="map"></div>
-  <div id="search-box">
-    <div class="select-box">
-        <select id="store-type-choice">
-          <option value="" disabled selected hidden>상가</option>
-        </select>
-        <select id="city-code-choice">
-          <option value="" disabled selected hidden>지역(미선택시 전체)</option>
-        </select>
-      <button id="btn-search">검색</button>
-      </div>
-    <div class="selected-box">
-      <h4>상가</h4>
-      <p id="selected-store"></p>
-      <h4>지역</h4>
-      <p id="selected-cities"></p>
-      <button id="btn-selected-cities">초기화</button>
+    <div id="map-wrapper">
+    
+      <div id="map"></div>
+      <img id="loading" src="/static/images/loading.gif" alt="로딩 중..." >
     </div>
     
-  </div>
+    <div id="search-box">
+      <div class="select-box">
+          <select id="store-type-choice">
+            <option value="" disabled selected hidden>상가</option>
+          </select>
+          <select id="city-code-choice">
+            <option value="" disabled selected hidden>지역(미선택시 전체)</option>
+          </select>
+        <button id="btn-search">검색</button>
+        </div>
+      <div class="selected-box">
+        <h4>상가</h4>
+        <p id="selected-store"></p>
+        <h4>지역</h4>
+        <p id="selected-cities"></p>
+        <button id="btn-selected-cities">초기화</button>
+      </div>
+      
+    </div>
 </div>
 
 <script>
@@ -42,6 +47,7 @@ getCodes('store', 'all', function(response) {
     // console.log(option)
     select.appendChild(option);
   }
+  document.getElementById('loading').style.visibility = 'hidden';
 });
 
 getCodes('city','all', function(response) {
@@ -65,6 +71,7 @@ document.getElementById('store-type-choice').onchange = function(e) {
   el = { code: opt.value, name: opt.text };
   selectedStore = el;
   // console.log(selectedStore);
+  
   showSelectedStore();
 }
 
@@ -85,6 +92,7 @@ document.getElementById('btn-search').onclick = function () {
   if (!selectedStore.code) {
     return alert('상가를 선택해 주세요!!');
   }
+  document.getElementById('loading').style.visibility = 'visible';
   getLocationsFromApi((data) => {
     deleteMarkers();
     // console.log(data)
@@ -114,12 +122,8 @@ function getLocationsFromApi(cb) {
   xhr.open('GET', url, true);
   xhr.responseType = 'json';
   xhr.onreadystatechange = function () {
-
-    if (this.readyState) {
-
-    }
-
-    if (4 == this.readyState) {
+    if ( 4 == this.readyState) {
+      document.getElementById('loading').style.visibility = 'hidden';
       if (200 == this.status) {
         cb(this.response);
       }
@@ -261,8 +265,7 @@ function getCodesUrl(type, name) {
 </script>
 
 <style>
-  #convenience-stores,
-  #map {
+  #convenience-stores, #map-wrapper, #map {
     height: 100%;
   }
 
@@ -280,4 +283,12 @@ function getCodesUrl(type, name) {
     height: 200px;
     /* background-color: aqua; */
   }
+
+  #loading {
+    position: absolute;
+    top: 48%;
+    left: 48%;
+    z-index: 9999;
+  }
+
 </style>
