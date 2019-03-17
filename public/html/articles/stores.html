@@ -1,25 +1,25 @@
 <div id="convenience-stores">
     <div id="map-wrapper">
-    
       <div id="map"></div>
       <img id="loading" src="/static/images/loading.gif" alt="로딩 중..." >
     </div>
-    
     <div id="search-box">
-      <div class="select-box">
+      <button id="btn-search-box">검색조건</button>
+      <div id="select-box" class="select-box visibility" state="hidden">
           <select id="store-type-choice">
             <option value="" disabled selected hidden>상가</option>
           </select>
           <select id="city-code-choice">
             <option value="" disabled selected hidden>지역(미선택시 전체)</option>
           </select>
-        <button id="btn-search">검색</button>
+        
         </div>
-      <div class="selected-box">
+      <div id="selected-box" class="selected-box visibility" state="hidden">
         <h4>상가</h4>
         <p id="selected-store"></p>
         <h4>지역</h4>
         <p id="selected-cities"></p>
+        <button id="btn-search">검색</button>
         <button id="btn-selected-cities">초기화</button>
       </div>
       
@@ -64,56 +64,81 @@ getCodes('city','all', function(response) {
   }
 });
 
-document.getElementById('store-type-choice').onchange = function(e) {
-  var sel, opt, el;
-  sel = document.getElementById('store-type-choice');
-  opt = sel.options[sel.selectedIndex];
-  el = { code: opt.value, name: opt.text };
-  selectedStore = el;
-  // console.log(selectedStore);
-  
-  showSelectedStore();
-}
-
-document.getElementById('city-code-choice').onchange = function(e) {
-  var sel, opt, el;
-  sel = document.getElementById('city-code-choice');
-  opt = sel.options[sel.selectedIndex];
-  el = { code: opt.value, name: opt.text };
-  addElementIntoSelectedCities(el);
-  // console.log(selectedCities);
-  showSelectedCities();
-}
-
-document.getElementById('btn-search').onclick = function () {
-  var name, region, conditions;
-  // markerCluster = new MarkerClusterer(map);
-  // conditions = { name: getNameCondition(), region: getRegionCondition() };
-  if (!selectedStore.code) {
-    return alert('상가를 선택해 주세요!!');
+(function onClickStoreTypeChoice() {
+  document.getElementById('store-type-choice').onchange = function(e) {
+    var sel, opt, el;
+    sel = document.getElementById('store-type-choice');
+    opt = sel.options[sel.selectedIndex];
+    el = { code: opt.value, name: opt.text };
+    selectedStore = el;
+    // console.log(selectedStore);
+    showSelectedStore();
   }
-  document.getElementById('loading').style.visibility = 'visible';
-  getLocationsFromApi((data) => {
-    deleteMarkers();
-    // console.log(data)
-    markers = setMarkers(data.resBody);
+})();
 
-    markerCluster = new MarkerClusterer(map, markers, {
-      imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-      gridSize: 100,
+
+(function onClickCityCodeChoice() {
+  document.getElementById('city-code-choice').onchange = function(e) {
+    var sel, opt, el;
+    sel = document.getElementById('city-code-choice');
+    opt = sel.options[sel.selectedIndex];
+    el = { code: opt.value, name: opt.text };
+    addElementIntoSelectedCities(el);
+    // console.log(selectedCities);
+    showSelectedCities();
+  }
+})();
+
+
+(function onClickBtnSearch() {
+  document.getElementById('btn-search').onclick = function () {
+    var name, region, conditions;
+    // markerCluster = new MarkerClusterer(map);
+    // conditions = { name: getNameCondition(), region: getRegionCondition() };
+    if (!selectedStore.code) {
+      return alert('상가를 선택해 주세요!!');
+    }
+    document.getElementById('loading').style.visibility = 'visible';
+    getLocationsFromApi((data) => {
+      deleteMarkers();
+      // console.log(data)
+      markers = setMarkers(data.resBody);
+
+      markerCluster = new MarkerClusterer(map, markers, {
+        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+        gridSize: 100,
+      });
     });
-  });
-}
+  }
+})();
 
-document.getElementById('btn-selected-cities').onclick = function() {
-  var sel, opt;
-  document.getElementById('selected-store').innerHTML = '';
-  document.getElementById('selected-cities').innerHTML = '';
-  selectedStore = {};
-  selectedCities = [];
-  document.getElementById('city-code-choice').selectedIndex = 0;
-  document.getElementById('store-type-choice').selectedIndex = 0;
-};
+(function onClickBtnSelectedCities() {
+  document.getElementById('btn-selected-cities').onclick = function() {
+    var sel, opt;
+    document.getElementById('selected-store').innerHTML = '';
+    document.getElementById('selected-cities').innerHTML = '';
+    selectedStore = {};
+    selectedCities = [];
+    document.getElementById('city-code-choice').selectedIndex = 0;
+    document.getElementById('store-type-choice').selectedIndex = 0;
+  };
+})();
+
+(function onClickBtnSearchBox () {
+  document.getElementById('btn-search-box').onclick = function() {
+    var boxes, i, len;
+    len = document.getElementsByClassName('visibility').length;
+    for ( i=0; i< len; i+=1 ) {
+      if( 'visible' == document.getElementsByClassName('visibility')[i].getAttribute('state') ) {
+        document.getElementsByClassName('visibility')[i].setAttribute('state', 'hidden');
+        document.getElementsByClassName('visibility')[i].style.visibility = 'hidden';
+      } else {
+        document.getElementsByClassName('visibility')[i].setAttribute('state', 'visible');
+        document.getElementsByClassName('visibility')[i].style.visibility = 'visible';
+      }
+    }
+  };
+})();
 
 function getLocationsFromApi(cb) {
   var xhr, url;
@@ -291,4 +316,7 @@ function getCodesUrl(type, name) {
     z-index: 9999;
   }
 
+  .visibility {
+    visibility: hidden;
+  }
 </style>
