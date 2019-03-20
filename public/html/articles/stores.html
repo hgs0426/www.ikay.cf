@@ -1,30 +1,30 @@
 <div id="convenience-stores">
-    <div id="map-wrapper">
-      <div id="map"></div>
-      <img id="loading" src="/static/images/loading.gif" alt="로딩 중..." >
-    </div>
-    <p>데이터 출처: 공공데이터포털 https://www.data.go.kr/dataset/15012005/fileData.do)</p>
-    <div id="search-box">
-      <button id="btn-search-box">검색조건</button>
-      <div id="select-box" class="select-box visibility" state="hidden">
-          <select id="store-type-choice">
-            <option value="" disabled selected hidden>상가</option>
-          </select>
-          <select id="city-code-choice">
-            <option value="" disabled selected hidden>지역(미선택시 전체)</option>
-          </select>
+  <div id="map-wrapper">
+    <div id="map"></div>
+    <img id="loading" src="/static/images/loading.gif" alt="로딩 중..." >
+  </div>
+  <p>데이터 출처: 공공데이터포털 https://www.data.go.kr/dataset/15012005/fileData.do)</p>
+  <div id="search-box">
+    <button id="btn-search-box">검색조건</button>
+    <div id="select-box" class="select-box visibility" state="hidden">
+      <select id="store-type-choice">
+        <option value="" disabled selected hidden>상가</option>
+        </select>
+        <select id="city-code-choice">
+          <option value="" disabled selected hidden>지역(미선택시 전체)</option>
+        </select>
         
-        </div>
-      <div id="selected-box" class="selected-box visibility" state="hidden">
-        <h4>상가</h4>
-        <p id="selected-store"></p>
-        <h4>지역</h4>
-        <p id="selected-cities"></p>
-        <button id="btn-search">검색</button>
-        <button id="btn-selected-cities">초기화</button>
-      </div>
-      
     </div>
+    <div id="selected-box" class="selected-box visibility" state="hidden">
+      <h4>상가</h4>
+      <p id="selected-store"></p>
+      <h4>지역</h4>
+      <p id="selected-cities"></p>
+      <button id="btn-search">검색</button>
+      <button id="btn-selected-cities">초기화</button>
+    </div>
+      
+  </div>
 </div>
 
 <script>
